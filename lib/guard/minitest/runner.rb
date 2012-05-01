@@ -71,7 +71,7 @@ module Guard
 
         cmd_parts << "bundle exec" if bundler?
         if drb?
-          cmd_parts << 'testdrb'
+          cmd_parts << 'testdrb -- '
           cmd_parts << "-r #{File.expand_path('../runners/default_runner.rb', __FILE__)}"
           cmd_parts << "-e '::GUARD_NOTIFY=#{notify?}'"
           test_folders.each do |f|

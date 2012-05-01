@@ -69,18 +69,10 @@ module Guard
       def minitest_command(paths)
         cmd_parts = []
 
-        cmd_parts << "bundle exec" if bundler?
+        cmd = "bundle exec " if bundler?
         if drb?
-          cmd_parts << 'testdrb -- '
-          cmd_parts << "-r #{File.expand_path('../runners/default_runner.rb', __FILE__)}"
-          cmd_parts << "-e '::GUARD_NOTIFY=#{notify?}'"
-          test_folders.each do |f|
-            cmd_parts << "#{f}/test_helper.rb" if File.exist?("#{f}/test_helper.rb")
-            cmd_parts << "#{f}/spec_helper.rb" if File.exist?("#{f}/spec_helper.rb")
-          end
-          cmd_parts += paths.map{|path| "./#{path}" }
+          cmd += 'testdrb ' + paths.map{|path| "./#{path}" }.join(' ')
         else
-          cmd_parts << 'ruby'
           cmd_parts += test_folders.map{|f| %[-I"#{f}"] }
           cmd_parts << '-r rubygems' if rubygems?
           cmd_parts << '-r bundler/setup' if bundler?
@@ -88,9 +80,9 @@ module Guard
           cmd_parts << "-r #{File.expand_path('../runners/default_runner.rb', __FILE__)}"
           cmd_parts << '-e \'MiniTest::Unit.autorun\''
           cmd_parts << '--' << cli_options unless cli_options.empty?
+          cmd += 'ruby' + cmd_parts.join(' ')
         end
-
-        cmd_parts.join(' ')
+        cmd
       end
 
       def parse_deprecated_options(options)
